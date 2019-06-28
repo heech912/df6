@@ -2,7 +2,7 @@
 
 void setup(){
 
-
+int a = 3;
 }
 
 void loop(){
