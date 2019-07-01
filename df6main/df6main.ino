@@ -7,10 +7,17 @@
 
 #define GESTURE_INTERRUPT 2 // gesture 센서의 Interrupt
 #define BUTTON 9 // 시작처리를 위한 버튼. 설계에 따라 광센서 사용도 고려할만함
+#define LRVOL 10
+#define UDVOL 10
+
+
+//MP3 모듈 배선 : https://wiki.dfrobot.com/DFPlayer_Mini_SKU_DFR0299#target_5
 
 SparkFun_APDS9960 apds = SparkFun_APDS9960(); // gesture 센서의 전역 Instance
-DFRobotDFPlayerMini myDFPlayer;
-SoftwareSerial mySoftwareSerial(10, 11); // RX, TX
+DFRobotDFPlayerMini myDFPlayerLR;
+DFRobotDFPlayerMini myDFPlayerUD;
+SoftwareSerial mySoftwareSerialLR(6, 7); // RX, TX
+SoftwareSerial mySoftwareSerialUD(10, 11); // RX, TX
 
 int orchestraON = 0;
 int gestureON = 0;
@@ -27,9 +34,12 @@ apds.init();
 apds.enableGestureSensor(true);
 
 Serial.begin(9600);
-mySoftwareSerial.begin(9600);
-myDFPlayer.begin(mySoftwareSerial);
-myDFPlayer.volume(10);  //Set volume value. From 0 to 30
+mySoftwareSerialLR.begin(9600);
+mySoftwareSerialUD.begin(9600);
+myDFPlayerLR.begin(mySoftwareSerialLR);
+myDFPlayerUD.begin(mySoftwareSerialUD);
+myDFPlayerLR.volume(LRVOL);  //Set volume value. From 0 to 30
+myDFPlayerUD.volume(UDVOL);  //Set volume value. From 0 to 30
 }
 
 void loop(){
@@ -44,7 +54,7 @@ void loop(){
   else{
     if(!digitalRead(BUTTON)){
       Serial.println("Orchestra가 시작됩니다.");
-      orchestraON = 1;
+      orchestraON = !orchestraON;
       delay(3000);
 
 
@@ -57,14 +67,16 @@ void handleGesture() {
     if ( apds.isGestureAvailable() ) {
     switch ( apds.readGesture()) {
       case DIR_UP:
+        myDFPlayerUD.play(1);
         break;
       case DIR_DOWN:
+        myDFPlayerUD.play(2);
         break;
       case DIR_LEFT:
-        myDFPlayer.play(1);
+        myDFPlayerLR.play(1);
         break;
       case DIR_RIGHT:
-        myDFPlayer.play(2);
+        myDFPlayerLR.play(2);
         break;
       case DIR_NEAR:
         Serial.println("NEAR");
